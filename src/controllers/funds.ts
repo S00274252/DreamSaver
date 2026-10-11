@@ -52,8 +52,7 @@ export class FundController {
         return;
       }
 
-      // The merged result must still be a valid fund (e.g. an interest fund keeps its rate, start date and duration)
-      const merged = createFundZSchema.safeParse({
+       const merged = createFundZSchema.safeParse({
         ...existing,
         userId: String(existing.userId),
         ...req.body,
