@@ -1,6 +1,63 @@
 import { Schema, model } from 'mongoose';
 import { z } from 'zod';
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 665f1c2e8a1b2c3d4e5f6a7b
+ *         name:
+ *           type: string
+ *           example: Roman
+ *         email:
+ *           type: string
+ *           example: roman@example.com
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *     CreateUserInput:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Roman
+ *         email:
+ *           type: string
+ *           example: roman@example.com
+ *         password:
+ *           type: string
+ *           minLength: 8
+ *           example: supersecret123
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *           default: user
+ *     UpdateUserInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *           minLength: 8
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ */
 export const createUserZSchema = z.object({
   name: z.string().trim().min(1),
   email: z.email().toLowerCase(),
