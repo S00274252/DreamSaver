@@ -2,6 +2,87 @@ import { Schema, Types, model } from 'mongoose';
 import { z } from 'zod';
 import { objectIdZ } from './common';
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Fund:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         userId:
+ *           type: string
+ *         name:
+ *           type: string
+ *           example: Emergency savings
+ *         type:
+ *           type: string
+ *           enum: [static, interest]
+ *         amount:
+ *           type: number
+ *           example: 5000
+ *         interestRate:
+ *           type: number
+ *           description: Annual interest rate in percent (interest funds only)
+ *           example: 3.5
+ *         startDate:
+ *           type: string
+ *           format: date-time
+ *         durationMonths:
+ *           type: integer
+ *           example: 12
+ *     CreateFundInput:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - name
+ *         - type
+ *         - amount
+ *       properties:
+ *         userId:
+ *           type: string
+ *           example: 665f1c2e8a1b2c3d4e5f6a7b
+ *         name:
+ *           type: string
+ *           example: Fixed 12-month account
+ *         type:
+ *           type: string
+ *           enum: [static, interest]
+ *         amount:
+ *           type: number
+ *           example: 5000
+ *         interestRate:
+ *           type: number
+ *           description: Required when type is interest (annual %)
+ *           example: 3.5
+ *         startDate:
+ *           type: string
+ *           format: date
+ *           description: Required when type is interest
+ *           example: 2026-01-01
+ *         durationMonths:
+ *           type: integer
+ *           description: Required when type is interest
+ *           example: 12
+ *     UpdateFundInput:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         type:
+ *           type: string
+ *           enum: [static, interest]
+ *         amount:
+ *           type: number
+ *         interestRate:
+ *           type: number
+ *         startDate:
+ *           type: string
+ *           format: date
+ *         durationMonths:
+ *           type: integer
+ */
 
 export const FUND_TYPES = ['static', 'interest'] as const;
 

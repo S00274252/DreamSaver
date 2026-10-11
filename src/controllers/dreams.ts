@@ -16,6 +16,30 @@ const estimateQuerySchema = z.object({
 
 export class DreamController {
 
+  /**
+   * @openapi
+   * /dreams:
+   *   get:
+   *     summary: Retrieve dreams (optionally only those of one user)
+   *     tags:
+   *       - Dreams
+   *     parameters:
+   *       - $ref: '#/components/parameters/UserIdQuery'
+   *     responses:
+   *       200:
+   *         description: Successfully retrieved dreams
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Dream'
+   *       400:
+   *         description: Invalid userId
+   *       500:
+   *         description: Internal server error
+   */
+
   getDreams = async (req: Request, res: Response): Promise<void> => {
     try {
       res.status(200).json(await dreamService.getAllDreams(getUserIdQuery(req)));
@@ -23,6 +47,30 @@ export class DreamController {
       handleError(res, error, 'Error fetching dreams');
     }
   };
+
+  /**
+   * @openapi
+   * /dreams/{id}:
+   *   get:
+   *     summary: Get a dream by ID
+   *     tags:
+   *       - Dreams
+   *     parameters:
+   *       - $ref: '#/components/parameters/IdParam'
+   *     responses:
+   *       200:
+   *         description: Dream found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Dream'
+   *       400:
+   *         description: Invalid ID
+   *       404:
+   *         description: Dream not found
+   *       500:
+   *         description: Internal server error
+   */
 
   getDreamById = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -36,6 +84,40 @@ export class DreamController {
       handleError(res, error, 'Error fetching dream');
     }
   };
+
+  /**
+   * @openapi
+   * /dreams/{id}/estimate:
+   *   get:
+   *     summary: Estimate when the dream will come true (data for the countdown timer)
+   *     description: >
+   *       Finds the first month in which the projected balance reaches the target amount,
+   *       using the user's average monthly deposit (or the optional monthlyDeposit override)
+   *       and the interest growth of their funds.
+   *     tags:
+   *       - Dreams
+   *     parameters:
+   *       - $ref: '#/components/parameters/IdParam'
+   *       - in: query
+   *         name: monthlyDeposit
+   *         required: false
+   *         schema:
+   *           type: number
+   *           minimum: 0
+   *     responses:
+   *       200:
+   *         description: Estimate
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/DreamEstimate'
+   *       400:
+   *         description: Invalid ID or query parameters
+   *       404:
+   *         description: Dream not found
+   *       500:
+   *         description: Internal server error
+   */
 
   getDreamEstimate = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -62,6 +144,33 @@ export class DreamController {
     }
   };
 
+  /**
+   * @openapi
+   * /dreams:
+   *   post:
+   *     summary: Create a dream
+   *     tags:
+   *       - Dreams
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreateDreamInput'
+   *     responses:
+   *       201:
+   *         description: Dream created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Dream'
+   *       400:
+   *         description: Validation failed
+   *       404:
+   *         description: User not found
+   *       500:
+   *         description: Internal server error
+   */
   
   createDream = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -75,6 +184,36 @@ export class DreamController {
     }
   };
 
+  /**
+   * @openapi
+   * /dreams/{id}:
+   *   put:
+   *     summary: Edit a dream
+   *     tags:
+   *       - Dreams
+   *     parameters:
+   *       - $ref: '#/components/parameters/IdParam'
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateDreamInput'
+   *     responses:
+   *       200:
+   *         description: Dream updated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Dream'
+   *       400:
+   *         description: Validation failed
+   *       404:
+   *         description: Dream not found
+   *       500:
+   *         description: Internal server error
+   */
+
   updateDream = async (req: Request, res: Response): Promise<void> => {
     try {
       const dream = await dreamService.updateDream(getParam(req, 'id'), req.body);
@@ -87,6 +226,26 @@ export class DreamController {
       handleError(res, error, 'Error updating dream');
     }
   };
+
+  /**
+   * @openapi
+   * /dreams/{id}:
+   *   delete:
+   *     summary: Delete a dream
+   *     tags:
+   *       - Dreams
+   *     parameters:
+   *       - $ref: '#/components/parameters/IdParam'
+   *     responses:
+   *       200:
+   *         description: Dream deleted
+   *       400:
+   *         description: Invalid ID
+   *       404:
+   *         description: Dream not found
+   *       500:
+   *         description: Internal server error
+   */
 
   deleteDream = async (req: Request, res: Response): Promise<void> => {
     try {
