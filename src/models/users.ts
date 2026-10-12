@@ -17,9 +17,6 @@ import { z } from 'zod';
  *         email:
  *           type: string
  *           example: roman@example.com
- *         role:
- *           type: string
- *           enum: [user, admin]
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -40,10 +37,6 @@ import { z } from 'zod';
  *           type: string
  *           minLength: 8
  *           example: supersecret123
- *         role:
- *           type: string
- *           enum: [user, admin]
- *           default: user
  *     UpdateUserInput:
  *       type: object
  *       properties:
@@ -53,10 +46,7 @@ import { z } from 'zod';
  *           type: string
  *         password:
  *           type: string
- *           minLength: 8
- *         role:
- *           type: string
- *           enum: [user, admin]
+ *           minLength: 8    
  */
 export const createUserZSchema = z.object({
   name: z.string().trim().min(1),
