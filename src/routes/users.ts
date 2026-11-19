@@ -1,20 +1,20 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/users';
 import { validate } from '../middleware/validate.middleware';
-import { validateObjectId } from '../middleware/validate.middleware';
 import { createUserZSchema, updateUserZSchema } from '../models/users';
+import { idParamsZSchema } from '../models/common';
 
 const router = Router();
 const userController = new UserController();
 
 router.get('/', userController.getUsers);
-router.post('/', validate(createUserZSchema), userController.createUser);
+router.post('/', validate({ body: createUserZSchema }), userController.createUser);
 
-router.get('/:id', validateObjectId(), userController.getUserById);
-router.put('/:id', validateObjectId(), validate(updateUserZSchema), userController.updateUser);
-router.delete('/:id', validateObjectId(), userController.deleteUser);
+router.get('/:id', validate({ params: idParamsZSchema }), userController.getUserById);
+router.put('/:id', validate({ params: idParamsZSchema, body: updateUserZSchema }), userController.updateUser);
+router.delete('/:id', validate({ params: idParamsZSchema }), userController.deleteUser);
 
-router.get('/:id/balance', validateObjectId(), userController.getBalance);
-router.get('/:id/prediction', validateObjectId(), userController.getPrediction);
+router.get('/:id/balance', validate({ params: idParamsZSchema }), userController.getBalance);
+router.get('/:id/prediction', validate({ params: idParamsZSchema }), userController.getPrediction);
 
 export default router;

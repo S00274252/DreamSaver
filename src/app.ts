@@ -6,10 +6,14 @@ import dreamRoutes from './routes/dreams';
 import { loggerMiddleware } from "./middleware/logger.middleware";
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
+import cors from 'cors';
 
 export const app: Application = express();
 
+app.use(cors());
+
 app.use(express.json());
+app.use((_req, _res, next) => setTimeout(next, 2000));
 app.use(loggerMiddleware);
 
 app.use('/api/v1/users', userRoutes);
