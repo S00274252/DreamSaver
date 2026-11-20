@@ -7,6 +7,7 @@ import { loggerMiddleware } from "./middleware/logger.middleware";
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import cors from 'cors';
+import financeRoutes from './routes/finance';
 
 export const app: Application = express();
 
@@ -20,6 +21,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/deposits', depositRoutes);
 app.use('/api/v1/funds', fundRoutes);
 app.use('/api/v1/dreams', dreamRoutes);
+app.use('/api/v1', financeRoutes);
 
 app.use(
     '/api-docs',

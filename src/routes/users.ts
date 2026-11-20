@@ -14,7 +14,4 @@ router.get('/:id', validate({ params: idParamsZSchema }), userController.getUser
 router.put('/:id', validate({ params: idParamsZSchema, body: updateUserZSchema }), userController.updateUser);
 router.delete('/:id', validate({ params: idParamsZSchema }), userController.deleteUser);
 
-router.get('/:id/balance', validate({ params: idParamsZSchema }), userController.getBalance);
-router.get('/:id/prediction', validate({ params: idParamsZSchema }), userController.getPrediction);
-
 export default router;
