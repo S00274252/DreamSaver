@@ -8,6 +8,8 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import cors from 'cors';
 import financeRoutes from './routes/finance';
+import authRoutes from './routes/auth';
+import { authenticateJWT } from './middleware/auth.middleware';
 
 export const app: Application = express();
 
@@ -17,10 +19,11 @@ app.use(express.json());
 app.use((_req, _res, next) => setTimeout(next, 2000));
 app.use(loggerMiddleware);
 
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/deposits', depositRoutes);
-app.use('/api/v1/funds', fundRoutes);
-app.use('/api/v1/dreams', dreamRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', authenticateJWT, userRoutes);
+app.use('/api/v1/deposits', authenticateJWT, depositRoutes);
+app.use('/api/v1/funds', authenticateJWT, fundRoutes);
+app.use('/api/v1/dreams', authenticateJWT, dreamRoutes);
 app.use('/api/v1', financeRoutes);
 
 app.use(

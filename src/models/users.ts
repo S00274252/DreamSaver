@@ -46,7 +46,19 @@ import { z } from 'zod';
  *           type: string
  *         password:
  *           type: string
- *           minLength: 8    
+ *           minLength: 8
+ *     LoginInput:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           example: roman@example.com
+ *         password:
+ *           type: string
+ *           example: supersecret123
  */
 export const createUserZSchema = z.object({
   name: z.string().trim().min(1),
@@ -58,6 +70,11 @@ export const updateUserZSchema = z.object({
   name: z.string().trim().min(1).optional(),
   email: z.email().toLowerCase().optional(),
   password: z.string().min(8).optional(),
+});
+
+export const loginZSchema = z.object({
+  email: z.email().toLowerCase(),
+  password: z.string().min(1).max(64),
 });
 
 export interface IUser {
@@ -83,5 +100,6 @@ const userSchema = new Schema<IUser>(
     },
   }
 );
+
 
 export const UserModel = model<IUser>('User', userSchema);

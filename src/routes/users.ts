@@ -7,8 +7,8 @@ import { idParamsZSchema } from '../models/common';
 const router = Router();
 const userController = new UserController();
 
-router.get('/', userController.getUsers);
-router.post('/', validate({ body: createUserZSchema }), userController.createUser);
+// router.get('/', userController.getUsers);
+// router.post('/', validate({ body: createUserZSchema }), userController.createUser);
 
 router.get('/:id', validate({ params: idParamsZSchema }), userController.getUserById);
 router.put('/:id', validate({ params: idParamsZSchema, body: updateUserZSchema }), userController.updateUser);

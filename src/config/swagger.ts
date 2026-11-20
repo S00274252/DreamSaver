@@ -14,6 +14,7 @@ const options: swaggerJSDoc.Options = {
                 url: "/api/v1",
             },
         ],
+        
         tags: [
             { name: 'Users' },
             { name: 'Deposits' },
