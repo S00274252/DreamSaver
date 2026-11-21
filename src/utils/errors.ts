@@ -13,6 +13,30 @@ export const handleError = (res: Response, error: unknown, message: string): voi
     return;
   }
 
+  if (error instanceof AppError) {
+  res.status(error.status).json({ message: error.message });
+  return;
+  }
+  
   console.error(message, error);
   res.status(500).json({ message });
 };
+export class AppError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+export class UserAlreadyExistsError extends AppError {
+  constructor() {
+    super('User already exists', 409);
+  }
+}
+
+export class UnauthorizedError extends AppError {
+  constructor(message: string) {
+    super(message, 401);
+  }
+}

@@ -1,0 +1,72 @@
+@endpoint = http://localhost:3000/api/v1
+
+### Create a user
+# @name postUser
+POST {{endpoint}}/users HTTP/1.1
+content-type: application/json
+
+{ "name": "Roman", "email": "roman@example.com", "password": "supersecret123" }
+
+###
+@userId = {{postUser.response.body._id}}
+
+### Add a monthly deposit
+POST {{endpoint}}/deposits HTTP/1.1
+content-type: application/json
+
+{ "userId": "{{userId}}", "amount": 250, "date": "2026-01-31", "note": "January savings" }
+
+### Add a static fund (no interest)
+POST {{endpoint}}/funds HTTP/1.1
+content-type: application/json
+
+{ "userId": "{{userId}}", "name": "Emergency savings", "type": "static", "amount": 1000 }
+
+### Add an interest-bearing fund
+POST {{endpoint}}/funds HTTP/1.1
+content-type: application/json
+
+{ "userId": "{{userId}}", "name": "Fixed 12-month account", "type": "interest", "amount": 5000, "interestRate": 3.5, "startDate": "2026-01-01", "durationMonths": 12 }
+
+### Create a dream
+# @name postDream
+POST {{endpoint}}/dreams HTTP/1.1
+content-type: application/json
+
+{ "userId": "{{userId}}", "title": "New car", "targetAmount": 15000 }
+
+###
+@dreamId = {{postDream.response.body._id}}
+
+### Total balance
+GET {{endpoint}}/users/{{userId}}/balance HTTP/1.1
+
+### Predicted balance on a future date
+GET {{endpoint}}/users/{{userId}}/prediction?date=2027-12-31 HTTP/1.1
+
+### Predicted balance with a custom monthly deposit
+GET {{endpoint}}/users/{{userId}}/prediction?date=2027-12-31&monthlyDeposit=400 HTTP/1.1
+
+### When will the dream come true?
+GET {{endpoint}}/dreams/{{dreamId}}/estimate HTTP/1.1
+
+### Edit a dream
+PUT {{endpoint}}/dreams/{{dreamId}} HTTP/1.1
+content-type: application/json
+
+{ "targetAmount": 12000 }
+
+### List everything for the user
+GET {{endpoint}}/deposits?userId={{userId}} HTTP/1.1
+
+###
+GET {{endpoint}}/funds?userId={{userId}} HTTP/1.1
+
+###
+GET {{endpoint}}/dreams?userId={{userId}} HTTP/1.1
+
+### Invalid id -> 400
+GET {{endpoint}}/users/sillyID HTTP/1.1
+
+### Delete the user (and all their data)
+DELETE {{endpoint}}/users/{{userId}} HTTP/1.1

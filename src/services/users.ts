@@ -32,14 +32,14 @@ export class UserService {
 
   async createUser(data: CreateUserData): Promise<HydratedDocument<IUser>> {
     const { password, ...rest } = data;
-    const user = new UserModel({ ...rest, passwordHash: hashPassword(password) });
+    const user = new UserModel({ ...rest, passwordHash: await hashPassword(password) });
     return await user.save();
   }
 
   async updateUser(id: string, data: UpdateUserData): Promise<IUser | null> {
     const { password, ...rest } = data;
     const update: Partial<IUser> = { ...rest };
-    if (password) update.passwordHash = hashPassword(password);
+    if (password) update.passwordHash = await hashPassword(password);
 
     return await UserModel.findByIdAndUpdate(id, update, {
       returnDocument: 'after',

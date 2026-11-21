@@ -1,48 +1,36 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { objectIdRegex } from '../models/common';
 
-export const validate = (schema: z.ZodObject<any>)   => (
-  req: Request,
-res: Response,
-  next: NextFunction
-) : void => {
+interface RequestSchemas {
+  params?: z.ZodType;
+  query?: z.ZodType;
+  body?: z.ZodType;
+}
 
-  const validation = schema.safeParse(req.body);
-
-  if (!validation.success) {
-    res.status(400).json({
-      message: 'Validation failed',
-      errors: validation.error.issues
-    });
-    return;
-  }
-
-  req.body = validation.data
-
-  next();
-};
-
-export const validateObjectId =
-  (...names: string[]) =>
+export const validate =
+  (schemas: RequestSchemas) =>
   (req: Request, res: Response, next: NextFunction): void => {
-    const params = names.length > 0 ? names : ['id'];
+    const errors: { source: string; path: PropertyKey[]; message: string }[] = [];
 
-    for (const name of params) {
-      const value = req.params[name];
-      if (typeof value !== 'string' || !objectIdRegex.test(value)) {
-        res.status(400).json({ message: `Invalid ${name}` });
-        return;
+    for (const source of ['params', 'query', 'body'] as const) {
+      const schema = schemas[source];
+      if (!schema) continue;
+
+      const result = schema.safeParse(req[source]);
+      if (!result.success) {
+        for (const issue of result.error.issues) {
+          errors.push({ source, path: issue.path, message: issue.message });
+        }
+      } else if (source === 'body') {
+        req.body = result.data;
+      } else if (source === 'query') {
+        res.locals.query = result.data;
       }
+    }
+
+    if (errors.length > 0) {
+      res.status(400).json({ message: 'Validation failed', errors });
+      return;
     }
     next();
   };
-
-  export const validateUserIdQuery = (req: Request, res: Response, next: NextFunction): void => {
-  const userId = req.query.userId;
-  if (userId !== undefined && (typeof userId !== 'string' || !objectIdRegex.test(userId))) {
-    res.status(400).json({ message: 'Invalid userId' });
-    return;
-  }
-  next();
-};

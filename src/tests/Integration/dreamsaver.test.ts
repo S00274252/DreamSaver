@@ -243,9 +243,9 @@ describe('Balance, prediction and dream estimate', () => {
     return userId;
   };
 
-  it('GET /users/:id/balance adds deposits and funds', async () => {
+  it('GET /balance?userId= adds deposits and funds', async () => {
     const userId = await setup();
-    const response = await request(app).get(`/api/v1/users/${userId}/balance`);
+    const response = await request(app).get(`/api/v1/balance?userId=${userId}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -261,34 +261,64 @@ describe('Balance, prediction and dream estimate', () => {
     const deposit = await DepositModel.findOne({ userId, amount: 200 });
 
     await request(app).put(`/api/v1/deposits/${deposit?._id}`).send({ amount: 400 });
-    const response = await request(app).get(`/api/v1/users/${userId}/balance`);
+    const response = await request(app).get(`/api/v1/balance?userId=${userId}`);
 
     expect(response.body.totalBalance).toBe(1200);
   });
 
-  it('GET /users/:id/balance returns 404 for a missing user', async () => {
-    expect((await request(app).get(`/api/v1/users/${missingId}/balance`)).status).toBe(404);
+  it('GET /balance?userId= returns 404 for a missing user', async () => {
+    expect((await request(app).get(`/api/v1/balance?userId=${missingId}`)).status).toBe(404);
   });
 
-  it('GET /users/:id/prediction uses the monthlyDeposit override', async () => {
+  it('GET /balance returns 400 without a userId', async () => {
+    const response = await request(app).get('/api/v1/balance');
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Validation failed');
+    expect(response.body.errors[0]).toMatchObject({ source: 'query' });
+  });
+
+  it('GET /balance returns 400 for an invalid userId', async () => {
+    expect((await request(app).get('/api/v1/balance?userId=abc')).status).toBe(400);
+  });
+
+  it('GET /predictions?userId= uses the monthlyDeposit override', async () => {
     const userId = await setup();
     const future = new Date();
     future.setUTCFullYear(future.getUTCFullYear() + 1);
 
     const response = await request(app)
-      .get(`/api/v1/users/${userId}/prediction`)
-      .query({ date: future.toISOString(), monthlyDeposit: 100 });
+      .get('/api/v1/predictions')
+      .query({ userId, date: future.toISOString(), monthlyDeposit: 100 });
 
     expect(response.status).toBe(200);
     expect(response.body.currentBalance).toBe(1000);
     expect(response.body.predictedBalance).toBeGreaterThanOrEqual(1000 + 11 * 100);
   });
 
-  it('GET /users/:id/prediction requires a valid date', async () => {
+  it('GET /predictions?userId= requires a valid date', async () => {
     const userId = await setup();
 
-    expect((await request(app).get(`/api/v1/users/${userId}/prediction`)).status).toBe(400);
-    expect((await request(app).get(`/api/v1/users/${userId}/prediction?date=nope`)).status).toBe(400);
+    expect((await request(app).get(`/api/v1/predictions?userId=${userId}`)).status).toBe(400);
+    expect((await request(app).get(`/api/v1/predictions?userId=${userId}&date=nope`)).status).toBe(400);
+  });
+
+  it('GET /predictions rejects a negative monthlyDeposit', async () => {
+    const userId = await setup();
+
+    const response = await request(app)
+      .get('/api/v1/predictions')
+      .query({ userId, date: '2030-01-01', monthlyDeposit: -5 });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('GET /predictions returns 404 for a missing user', async () => {
+    const response = await request(app)
+      .get('/api/v1/predictions')
+      .query({ userId: missingId, date: '2030-01-01' });
+
+    expect(response.status).toBe(404);
   });
 
   it('GET /dreams/:id/estimate returns months remaining', async () => {
@@ -311,6 +341,7 @@ describe('Balance, prediction and dream estimate', () => {
     expect(response.body).toMatchObject({ achievable: true, monthsRemaining: 0 });
   });
 });
+  
 
 describe('General API behaviour', () => {
   it('returns JSON 404 for unknown routes', async () => {
